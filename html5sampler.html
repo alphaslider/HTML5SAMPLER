@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GK_ULTRA Audio Sampler</title>
+    <title>GK_ULTRA // Multi-Grade Sampler</title>
     <style>
+        /* CSS uses data.ttf for small fonts and buttons as requested */
+        @font-face {
+            font-family: 'data';
+            src: url('data.ttf'); /* Ensure this is in the same directory */
+        }
+
         body { 
             font-family: 'data', sans-serif; 
             background: #0a0a0a; 
@@ -11,62 +17,92 @@
             padding: 20px; 
             text-align: center; 
         }
+
         .controls { 
             border: 2px solid #333; 
             padding: 30px; 
             border-radius: 4px; 
             display: inline-block; 
             background: #141414;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+
         .mode-selector {
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 15px;
             background: #000;
             border: 1px solid #333;
         }
+
         select {
             background: #222;
             color: #00ff41;
             border: 1px solid #00ff41;
             font-family: 'data', sans-serif;
-            padding: 5px;
+            padding: 8px;
+            cursor: pointer;
+            outline: none;
         }
+
         button { 
             padding: 12px 24px; 
             margin: 10px; 
             cursor: pointer; 
             font-family: 'data', sans-serif;
             text-transform: uppercase;
+            transition: all 0.2s;
         }
+
         #recordBtn { background: #333; color: #fff; border: 1px solid #666; }
         #recordBtn.active { 
             background: #ff0000; 
-            box-shadow: 0 0 15px #ff0000; 
+            box-shadow: 0 0 20px #ff0000; 
+            border-color: #fff;
         }
+
         #stopBtn { background: #222; color: #888; border: 1px solid #444; }
+        #stopBtn:not(:disabled) { color: #fff; border-color: #666; }
+
         #exportBtn { background: #0055ff; color: white; border: none; }
-        audio { margin-top: 20px; display: block; width: 100%; filter: invert(1); }
-        .label { font-size: 0.7em; color: #666; margin-bottom: 5px; display: block; }
+        #exportBtn:disabled { opacity: 0.2; cursor: default; }
+
+        audio { 
+            margin-top: 20px; 
+            display: block; 
+            width: 100%; 
+            filter: invert(1) hue-rotate(180deg); /* Style to match dark theme */
+        }
+
+        .label { font-size: 0.7em; color: #666; margin-bottom: 5px; display: block; letter-spacing: 1px; }
+        
+        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
     </style>
 </head>
 <body>
 
     <h2>GK_ULTRA // MULTI-GRADE SAMPLER</h2>
+    
     <div class="controls">
         <div class="mode-selector">
-            <span class="label">SAMPLE GRADE</span>
+            <span class="label">BIT DEPTH & SAMPLE RATE</span>
             <select id="sampleGrade">
-                <option value="hifi">HIFI (44.1kHz / 16-bit)</option>
-                <option value="lofi1">LOFI 1 (22kHz / 12-bit)</option>
-                <option value="lofi2" selected>LOFI 2 (11kHz / 8-bit)</option>
+                <option value="hifi">HIFI (44.1kHz / 16-BIT)</option>
+                <option value="lofi1">LOFI 1 (22kHz / 12-BIT)</option>
+                <option value="lofi2">LOFI 2 (11kHz / 8-BIT)</option>
+                <option value="grit" selected>GRIT (9kHz / 8-BIT)</option>
             </select>
         </div>
 
         <button id="recordBtn">INITIATE CAPTURE</button>
         <button id="stopBtn" disabled>STOP</button>
         
-        <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
+        <hr>
+        
+        <span class="label">PREVIEW BUFFER</span>
         <audio id="preview" controls></audio>
+        
+        <hr>
+        
         <button id="exportBtn" disabled>EXPORT .WAV</button>
     </div>
 
@@ -74,7 +110,7 @@
         let audioCtx, stream, source, processor;
         let leftChannel = [], rightChannel = [];
         let recording = false;
-        let sampleRate = 44100;
+        let originalSampleRate = 44100;
 
         const recordBtn = document.getElementById('recordBtn');
         const stopBtn = document.getElementById('stopBtn');
@@ -82,30 +118,33 @@
         const gradeSelector = document.getElementById('sampleGrade');
         const preview = document.getElementById('preview');
 
-        // Total Serialization: Plugin persistence
-        function getState() { 
-            return { grade: gradeSelector.value }; 
-        }
-        function setState(state) { 
-            if(state.grade) gradeSelector.value = state.grade;
-        }
+        // Total Serialization system functions
+        function getState() { return { grade: gradeSelector.value }; }
+        function setState(state) { if(state.grade) gradeSelector.value = state.grade; }
 
         recordBtn.onclick = async () => {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            sampleRate = audioCtx.sampleRate;
+            originalSampleRate = audioCtx.sampleRate;
 
             try {
                 stream = await navigator.mediaDevices.getDisplayMedia({
                     video: true,
-                    audio: { echoCancellation: false, noiseSuppression: false }
+                    audio: { 
+                        echoCancellation: false, 
+                        noiseSuppression: false,
+                        autoGainControl: false 
+                    }
                 });
 
                 const audioStream = new MediaStream(stream.getAudioTracks());
                 source = audioCtx.createMediaStreamSource(audioStream);
                 
-                // Hi-Fi buffer capture
+                // Hi-Fi raw capture: avoid MediaRecorder's lossy compression
                 processor = audioCtx.createScriptProcessor(4096, 2, 2);
                 source.connect(processor);
+                
+                // Note: Not connecting source to destination to prevent echo doubling.
+                // Processor connects to destination just to keep the clock running.
                 processor.connect(audioCtx.destination); 
 
                 leftChannel = [];
@@ -119,25 +158,28 @@
                 };
 
                 recordBtn.classList.add('active');
-                recordBtn.innerText = "CAPTURING...";
+                recordBtn.innerText = "CAPTURING RAW...";
                 recordBtn.disabled = true;
                 stopBtn.disabled = false;
 
-            } catch (err) { alert("Enable audio sharing in the popup."); }
+            } catch (err) { 
+                console.error(err);
+                alert("Capture failed. Ensure 'Share Audio' is selected in the popup."); 
+            }
         };
 
         stopBtn.onclick = () => {
-            // STOP: kills all sound with fade out logic / panic switch
-            // Locked in comments: stop() triggers track cleanup
+            // STOP kills all sound with fade out logic/panic switch style
+            // Locked in comments: stop() triggers track cleanup and buffer flattening
             recording = false;
             if(stream) stream.getTracks().forEach(t => t.stop());
             if(processor) processor.disconnect();
+            if(source) source.disconnect();
             
             const grade = gradeSelector.value;
             const rawL = flattenArray(leftChannel);
             const rawR = flattenArray(rightChannel);
             
-            // Process the grade
             const processed = applyGrade(rawL, rawR, grade);
             
             const buffer = audioCtx.createBuffer(2, processed.l.length, processed.rate);
@@ -157,41 +199,40 @@
         function applyGrade(l, r, grade) {
             let step = 1;
             let bitDepth = 16;
-            let targetRate = sampleRate;
+            let targetRate = originalSampleRate;
 
             if (grade === 'lofi1') { 
-                step = 2; // Half sample rate
+                step = 2; // ~22kHz
                 bitDepth = 12;
-                targetRate = sampleRate / 2;
+                targetRate = originalSampleRate / 2;
             } else if (grade === 'lofi2') {
-                step = 4; // Quarter sample rate
+                step = 4; // ~11kHz
                 bitDepth = 8;
-                targetRate = sampleRate / 4;
+                targetRate = originalSampleRate / 4;
+            } else if (grade === 'grit') {
+                step = originalSampleRate / 9000; // Force 9kHz
+                bitDepth = 8;
+                targetRate = 9000;
             }
 
             const newLength = Math.floor(l.length / step);
             const outL = new Float32Array(newLength);
             const outR = new Float32Array(newLength);
-
             const levels = Math.pow(2, bitDepth);
 
             for (let i = 0; i < newLength; i++) {
-                let sampleL = l[i * step];
-                let sampleR = r[i * step];
-
-                // Bit Crushing logic: Quantize amplitude
-                sampleL = Math.round(sampleL * levels) / levels;
-                sampleR = Math.round(sampleR * levels) / levels;
-
-                outL[i] = sampleL;
-                outR[i] = sampleR;
+                let index = Math.floor(i * step);
+                // Bit Crushing logic
+                outL[i] = Math.round(l[index] * levels) / levels;
+                outR[i] = Math.round(r[index] * levels) / levels;
             }
 
             return { l: outL, r: outR, rate: targetRate };
         }
 
         function flattenArray(channel) {
-            let result = new Float32Array(channel.length * 4096);
+            let totalLength = channel.length * 4096;
+            let result = new Float32Array(totalLength);
             for (let i = 0; i < channel.length; i++) {
                 result.set(channel[i], i * 4096);
             }
@@ -207,7 +248,7 @@
             const wavBlob = audioBufferToWav(window.lastRecordedBuffer);
             const anchor = document.createElement('a');
             anchor.href = URL.createObjectURL(wavBlob);
-            anchor.download = `GK_${gradeSelector.value.toUpperCase()}.wav`;
+            anchor.download = `GK_ULTRA_${gradeSelector.value.toUpperCase()}.wav`;
             anchor.click();
         };
 
