@@ -2,15 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GK_ULTRA // SUBZERO_UNIT // RING_MOD</title>
+    <title>GK_ULTRA // SUBZERO_UNIT // LOFI_REFRACTOR</title>
     <style>
-        @font-face {
-            font-family: 'data';
-            src: url('data.ttf'); 
-        }
-
         :root {
-            /* SUBZERO PALETTE */
             --bg-obsidian: #05070a;
             --panel-steel: #161b22;
             --frost-trim: #30363d;
@@ -18,257 +12,95 @@
             --electric-blue: #7df9ff;
             --whiteout: #ffffff;
             --rubber-pad: #0d1117;
-            --rubber-shadow: #000000;
         }
 
         body { 
-            font-family: 'data', monospace; 
+            font-family: monospace; 
             background: var(--bg-obsidian); 
             color: var(--ice-cyan); 
-            padding: 40px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            user-select: none;
-            /* Scanline Overlay */
-            background-image: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.2) 0px,
-                rgba(0, 0, 0, 0.2) 1px,
-                transparent 1px,
-                transparent 2px
-            );
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh; margin: 0; overflow: hidden;
+            background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 1px, transparent 1px, transparent 2px);
         }
 
-        /* HARDWARE CHASSIS */
+        /* HARDWARE UI */
         .chassis { 
             background: var(--panel-steel);
-            border: 1px solid var(--frost-trim);
-            border-radius: 4px; 
-            padding: 25px; 
-            width: 500px;
-            box-shadow: 
-                0 0 30px rgba(0, 229, 255, 0.05), /* Cryo Glow */
-                0 20px 50px rgba(0,0,0,0.9); /* Drop shadow */
+            border: 4px double var(--frost-trim); /* Chunky 80s hardware border */
+            border-radius: 4px; padding: 25px; width: 500px;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05), 0 20px 50px rgba(0,0,0,0.9);
             position: relative;
         }
 
-        /* SCREWS (Industrial Steel) */
-        .screw {
-            position: absolute; width: 12px; height: 12px;
-            background: #222; border-radius: 50%;
-            border: 1px solid #444;
-            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.1);
-            z-index: 10;
-        }
-        .tl { top: 10px; left: 10px; transform: rotate(45deg); }
-        .tr { top: 10px; right: 10px; transform: rotate(15deg); }
-        .bl { bottom: 10px; left: 10px; transform: rotate(-20deg); }
-        .br { bottom: 10px; right: 10px; transform: rotate(60deg); }
-        .screw::after { content: ''; position: absolute; top: 5px; left: 2px; width: 8px; height: 2px; background: #111; }
-
-        h2 {
-            margin: 0 0 20px 0;
-            color: var(--ice-cyan);
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-            letter-spacing: 2px;
-            font-size: 18px;
-            border-bottom: 1px solid var(--frost-trim);
-            padding-bottom: 10px;
-            text-align: left;
-        }
-        
-        .status-light {
-            float: right;
-            width: 8px; height: 8px;
-            background: #112233;
-            border-radius: 50%;
-            border: 1px solid var(--frost-trim);
-            margin-top: 6px;
-        }
-        .status-active {
-            background: var(--whiteout);
-            box-shadow: 0 0 10px var(--whiteout), 0 0 20px var(--ice-cyan);
-            border-color: #fff;
-        }
-
-        /* DISPLAY SCREEN */
         .screen-bezel {
-            background: #080a0c;
-            padding: 15px;
-            border-radius: 2px;
-            border: 1px solid var(--frost-trim);
-            margin-bottom: 25px;
+            background: #080a0c; padding: 15px; border-radius: 2px;
+            border: 1px solid var(--frost-trim); margin-bottom: 25px;
             box-shadow: inset 0 0 20px #000;
         }
-        
+
         #preview { 
-            width: 100%; 
-            height: 30px;
-            /* Filter to turn default player Cyan/Blue */
-            filter: invert(0.9) sepia(1) saturate(5) hue-rotate(190deg) contrast(1.2);
-            opacity: 0.8;
-            margin-top: 10px;
+            width: 100%; height: 35px;
+            filter: invert(0.9) sepia(1) saturate(5) hue-rotate(190deg);
+            opacity: 0.8; margin-top: 10px;
         }
 
-        .lcd-text {
-            color: var(--ice-cyan);
-            font-size: 10px;
-            text-align: left;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        /* CONTROLS DECK */
-        .control-deck {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .knob-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px dashed var(--frost-trim);
-            padding-bottom: 15px;
-        }
-
-        select {
+        /* CONTROLS */
+        .control-deck { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 4px; }
+        
+        select, button {
             background: var(--rubber-pad);
             color: var(--ice-cyan);
             border: 1px solid var(--frost-trim);
-            font-family: 'data', sans-serif;
-            padding: 5px;
-            font-size: 10px;
+            font-family: monospace;
             cursor: pointer;
-            outline: none;
-            width: 150px;
             text-transform: uppercase;
         }
 
-        /* RUBBER BUTTONS */
-        .btn-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        select { padding: 8px; font-size: 11px; width: 100%; }
 
-        button {
-            background: var(--rubber-pad);
-            color: #586069; /* Dim steel text */
-            border: 1px solid var(--frost-trim);
-            padding: 15px 0;
-            border-radius: 3px;
-            font-family: 'data', sans-serif;
-            font-size: 11px;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            
-            /* 3D Effect */
-            box-shadow: 0 4px 0 #000;
-            position: relative;
-            top: 0;
-        }
-
-        button:active {
-            top: 4px;
-            box-shadow: 0 0 0 #000;
-            color: var(--ice-cyan);
-            background: #0f1216;
-        }
-
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            top: 2px;
-            box-shadow: 0 2px 0 #000;
-        }
-
-        /* Specific Button States */
-        #recordBtn.active {
-            background: #111;
-            color: var(--ice-cyan);
-            border-color: var(--ice-cyan);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2), inset 0 0 10px #000;
-            top: 4px;
-            animation: pulse 1s infinite;
-        }
-
-        #exportBtn {
-            grid-column: span 2;
-            background: #1c2128;
-            color: var(--electric-blue);
-            margin-top: 10px;
-            border: 1px solid var(--frost-trim);
-        }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         
-        #exportBtn:hover:not(:disabled) {
-            background: #252b33;
-            color: var(--whiteout);
-            text-shadow: 0 0 8px var(--ice-cyan);
-            border-color: var(--ice-cyan);
+        button { 
+            padding: 12px; font-size: 10px; 
+            box-shadow: 0 3px 0 #000; position: relative; 
         }
 
-        @keyframes pulse {
-            0% { text-shadow: 0 0 5px var(--ice-cyan); border-color: rgba(0, 229, 255, 0.3); }
-            50% { text-shadow: 0 0 20px var(--ice-cyan); border-color: var(--ice-cyan); }
-            100% { text-shadow: 0 0 5px var(--ice-cyan); border-color: rgba(0, 229, 255, 0.3); }
-        }
+        button:active { top: 2px; box-shadow: 0 1px 0 #000; }
+        
+        #exportBtn { grid-column: span 2; background: #1c2128; color: var(--electric-blue); }
 
-        .label { 
-            font-size: 9px; 
-            color: #8b949e; 
-            font-weight: bold;
-            display: block; 
-            margin-bottom: 4px;
+        .status-light {
+            float: right; width: 10px; height: 10px;
+            background: #112233; border-radius: 50%;
         }
+        .status-active { background: var(--whiteout); box-shadow: 0 0 10px var(--ice-cyan); }
+
+        .label { font-size: 9px; color: #8b949e; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="chassis">
-    <div class="screw tl"></div>
-    <div class="screw tr"></div>
-    <div class="screw bl"></div>
-    <div class="screw br"></div>
-
-    <h2>GK_ULTRA <span style="font-size:10px; opacity:0.6; margin-left:10px;">SUBZERO_UNIT v3.0</span> <div id="recLight" class="status-light"></div></h2>
+    <h2>GK_ULTRA <span style="font-size:10px; opacity:0.5;">LOFI_CORE</span> <div id="recLight" class="status-light"></div></h2>
     
     <div class="screen-bezel">
-        <div class="lcd-text">BUFFER_MONITOR // RING_MOD_ACTIVE</div>
+        <div style="font-size: 10px;">SIGNAL_PATH: <span id="gradeDisplay">ACTIVE</span></div>
         <audio id="preview" controls></audio>
-        <div class="lcd-text" style="text-align:right; margin-top:5px; font-size:9px; opacity:0.5">NO_SIGNAL</div>
     </div>
 
     <div class="control-deck">
-        <div class="knob-row">
-            <div>
-                <span class="label">DEGRADE_MODE</span>
-                <select id="sampleGrade">
-                    <option value="hifi">CLEAN (16-BIT)</option>
-                    <option value="lofi1">RADIO (12-BIT)</option>
-                    <option value="lofi2">PHONE (8-BIT)</option>
-                    <option value="grit" selected>SWAMP (9kHz+RING)</option>
-                </select>
-            </div>
-            <div style="text-align:right">
-                <span class="label">INPUT_SOURCE</span>
-                <div style="font-size:10px; color:var(--ice-cyan); background:var(--rubber-pad); padding:4px 8px; border-radius:3px; border:1px solid var(--frost-trim);">SYSTEM_AUDIO</div>
-            </div>
-        </div>
+        <span class="label">DESTRUCTION_GRADE</span>
+        <select id="sampleGrade">
+            <option value="hifi" selected>CLEAN (16-BIT / RAW)</option>
+            <option value="lofi1">VINTAGE (12-BIT / 22kHz)</option>
+            <option value="lofi2">CRUSHED (8-BIT / 11kHz)</option>
+            <option value="grit">ULTRA_LOFI (4-BIT / 4kHz)</option>
+        </select>
 
         <div class="btn-row">
             <button id="recordBtn">ARM & CAPTURE</button>
             <button id="stopBtn" disabled>CUT SIGNAL</button>
-            <button id="exportBtn" disabled>EXPORT_WAV_DATA</button>
+            <button id="exportBtn" disabled>SAVE_TO_DISK</button>
         </div>
     </div>
 </div>
@@ -277,7 +109,6 @@
     let audioCtx, stream, source, processor;
     let leftChannel = [], rightChannel = [];
     let recording = false;
-    let originalSampleRate = 44100;
 
     const recordBtn = document.getElementById('recordBtn');
     const stopBtn = document.getElementById('stopBtn');
@@ -286,36 +117,27 @@
     const preview = document.getElementById('preview');
     const recLight = document.getElementById('recLight');
 
-    // Total Serialization system functions
-    function getState() { return { grade: gradeSelector.value }; }
-    function setState(state) { if(state.grade) gradeSelector.value = state.grade; }
-
     recordBtn.onclick = async () => {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        originalSampleRate = audioCtx.sampleRate;
-
         try {
-            stream = await navigator.mediaDevices.getDisplayMedia({
-                video: true,
+            // BUG FIX: Disabled all browser audio processing for a true direct stream
+            stream = await navigator.mediaDevices.getDisplayMedia({ 
+                video: true, 
                 audio: { 
                     echoCancellation: false, 
                     noiseSuppression: false,
                     autoGainControl: false 
-                }
+                } 
             });
-
+            
             const audioStream = new MediaStream(stream.getAudioTracks());
             source = audioCtx.createMediaStreamSource(audioStream);
-            
-            // Hi-Fi raw capture: avoid MediaRecorder's lossy compression
             processor = audioCtx.createScriptProcessor(4096, 2, 2);
-            source.connect(processor);
             
-            // Note: Not connecting source to destination to prevent echo doubling.
-            // Processor connects to destination just to keep the clock running.
+            source.connect(processor);
             processor.connect(audioCtx.destination); 
 
-            leftChannel = [];
+            leftChannel = []; 
             rightChannel = [];
             recording = true;
 
@@ -325,119 +147,72 @@
                 rightChannel.push(new Float32Array(e.inputBuffer.getChannelData(1)));
             };
 
-            recordBtn.classList.add('active');
-            recLight.classList.add('status-active');
             recordBtn.innerText = "CAPTURING...";
             recordBtn.disabled = true;
             stopBtn.disabled = false;
-
-        } catch (err) { 
-            console.error(err);
-            alert("Capture failed. Ensure 'Share Audio' is selected in the popup."); 
-        }
+            recLight.classList.add('status-active');
+        } catch (err) { alert("Enable audio sharing in the popup."); }
     };
 
     stopBtn.onclick = () => {
-        // STOP kills all sound with fade out logic/panic switch style
-        // Locked in comments: stop() triggers track cleanup and buffer flattening
         recording = false;
         if(stream) stream.getTracks().forEach(t => t.stop());
         if(processor) processor.disconnect();
         if(source) source.disconnect();
         
-        const grade = gradeSelector.value;
         const rawL = flattenArray(leftChannel);
         const rawR = flattenArray(rightChannel);
         
-        const processed = applyGrade(rawL, rawR, grade);
-        
+        // Process the audio
+        const processed = applyGrade(rawL, rawR, gradeSelector.value);
+
+        // Create the playable buffer
         const buffer = audioCtx.createBuffer(2, processed.l.length, processed.rate);
         buffer.copyToChannel(processed.l, 0);
         buffer.copyToChannel(processed.r, 1);
         
-        createPreview(buffer);
+        preview.src = URL.createObjectURL(audioBufferToWav(buffer));
         window.lastRecordedBuffer = buffer;
-        
-        recordBtn.classList.remove('active');
-        recLight.classList.remove('status-active');
+
         recordBtn.innerText = "ARM & CAPTURE";
         recordBtn.disabled = false;
         stopBtn.disabled = true;
         exportBtn.disabled = false;
+        recLight.classList.remove('status-active');
     };
 
-    // UPDATED GRADE LOGIC WITH 202 RING
     function applyGrade(l, r, grade) {
         let step = 1;
         let bitDepth = 16;
-        let targetRate = originalSampleRate;
-        let ringing = false;
+        let rate = audioCtx.sampleRate;
 
-        if (grade === 'lofi1') { 
-            step = 2; // ~22kHz
-            bitDepth = 12;
-            targetRate = originalSampleRate / 2;
-        } else if (grade === 'lofi2') {
-            step = 4; // ~11kHz
-            bitDepth = 8;
-            targetRate = originalSampleRate / 4;
-            ringing = true; // Subtle ring on Phone mode
-        } else if (grade === 'grit') {
-            step = originalSampleRate / 9000; // Force 9kHz
-            bitDepth = 8;
-            targetRate = 9000;
-            ringing = true; // Full ring on Swamp mode
-        }
+        if (grade === 'lofi1') { step = 2; bitDepth = 12; }
+        else if (grade === 'lofi2') { step = 4; bitDepth = 8; }
+        else if (grade === 'grit') { step = 11; bitDepth = 4; }
 
-        const newLength = Math.floor(l.length / step);
-        const outL = new Float32Array(newLength);
-        const outR = new Float32Array(newLength);
+        const outL = new Float32Array(l.length);
+        const outR = new Float32Array(r.length);
         const levels = Math.pow(2, bitDepth);
 
-        for (let i = 0; i < newLength; i++) {
-            let index = Math.floor(i * step);
+        // Sample and Hold + Bitcrushing logic
+        for (let i = 0; i < l.length; i += step) {
+            let valL = Math.round(l[i] * levels) / levels;
+            let valR = Math.round(r[i] * levels) / levels;
             
-            // 1. Bit Crushing
-            let valL = Math.round(l[index] * levels) / levels;
-            let valR = Math.round(r[index] * levels) / levels;
-
-            // 2. The "202 Ring" (Simulated Aliasing artifacts)
-            // Adds a metallic 'whine' based on sample index
-            if (ringing) {
-                // High frequency oscillation to mimic clock noise
-                let ring = Math.sin(i * 0.8) * 0.008; 
-                valL += ring;
-                valR += ring;
+            for (let j = 0; j < step && (i + j) < l.length; j++) {
+                outL[i + j] = valL;
+                outR[i + j] = valR;
             }
-
-            outL[i] = valL;
-            outR[i] = valR;
         }
 
-        return { l: outL, r: outR, rate: targetRate };
+        return { l: outL, r: outR, rate: rate };
     }
 
     function flattenArray(channel) {
-        let totalLength = channel.length * 4096;
-        let result = new Float32Array(totalLength);
-        for (let i = 0; i < channel.length; i++) {
-            result.set(channel[i], i * 4096);
-        }
+        let result = new Float32Array(channel.length * 4096);
+        for (let i = 0; i < channel.length; i++) result.set(channel[i], i * 4096);
         return result;
     }
-
-    function createPreview(buffer) {
-        const wavBlob = audioBufferToWav(buffer);
-        preview.src = URL.createObjectURL(wavBlob);
-    }
-
-    exportBtn.onclick = () => {
-        const wavBlob = audioBufferToWav(window.lastRecordedBuffer);
-        const anchor = document.createElement('a');
-        anchor.href = URL.createObjectURL(wavBlob);
-        anchor.download = `GK_ULTRA_${gradeSelector.value.toUpperCase()}.wav`;
-        anchor.click();
-    };
 
     function audioBufferToWav(buffer) {
         let numOfChan = 2, length = buffer.length * 4 + 44, bufferArr = new ArrayBuffer(length), view = new DataView(bufferArr), pos = 0;
@@ -453,6 +228,13 @@
         }
         return new Blob([view], { type: 'audio/wav' });
     }
+
+    exportBtn.onclick = () => {
+        const anchor = document.createElement('a');
+        anchor.href = preview.src;
+        anchor.download = `GK_ULTRA_${gradeSelector.value.toUpperCase()}.wav`;
+        anchor.click();
+    };
 </script>
 </body>
 </html>
