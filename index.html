@@ -2,139 +2,250 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GK_ULTRA // SUBZERO_UNIT // LOFI_REFRACTOR</title>
+    <title>GK_ULTRA // SUBZERO_UNIT</title>
     <style>
         :root {
-            --bg-obsidian: #05070a;
-            --panel-steel: #161b22;
-            --frost-trim: #30363d;
-            --ice-cyan: #00e5ff;
-            --electric-blue: #7df9ff;
-            --whiteout: #ffffff;
-            --rubber-pad: #0d1117;
+            --bg-obsidian: #050505;
+            --gunmetal-dark: #121417;
+            --gunmetal-mid: #22252a;
+            --gunmetal-light: #3a3f47;
+            --rubber-pad: #181a1d;
+            --text-grey: #888c94;
+            --text-white: #e0e6ed;
+            --meter-hot: #ffffff;
+            --meter-low: #55585d;
         }
 
         body { 
             font-family: monospace; 
             background: var(--bg-obsidian); 
-            color: var(--ice-cyan); 
+            color: var(--text-grey); 
             display: flex; align-items: center; justify-content: center;
             height: 100vh; margin: 0; overflow: hidden;
-            background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 1px, transparent 1px, transparent 2px);
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 4px);
         }
 
-        /* HARDWARE UI */
+        /* GUNMETAL CHASSIS */
         .chassis { 
-            background: var(--panel-steel);
-            border: 4px double var(--frost-trim); /* Chunky 80s hardware border */
-            border-radius: 4px; padding: 25px; width: 500px;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05), 0 20px 50px rgba(0,0,0,0.9);
-            position: relative;
+            background: linear-gradient(135deg, var(--gunmetal-light), var(--gunmetal-dark));
+            border: 1px solid #000;
+            border-top: 1px solid #5a6068;
+            border-left: 1px solid #5a6068;
+            width: 500px;
+            padding: 25px;
+            box-shadow: 
+                inset -2px -2px 10px rgba(0,0,0,0.5),
+                inset 2px 2px 10px rgba(255,255,255,0.05),
+                0 20px 50px rgba(0,0,0,0.9);
         }
 
-        .screen-bezel {
-            background: #080a0c; padding: 15px; border-radius: 2px;
-            border: 1px solid var(--frost-trim); margin-bottom: 25px;
-            box-shadow: inset 0 0 20px #000;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.05);
         }
 
-        #preview { 
-            width: 100%; height: 35px;
-            filter: invert(0.9) sepia(1) saturate(5) hue-rotate(190deg);
-            opacity: 0.8; margin-top: 10px;
-        }
-
-        /* CONTROLS */
-        .control-deck { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 4px; }
-        
-        select, button {
-            background: var(--rubber-pad);
-            color: var(--ice-cyan);
-            border: 1px solid var(--frost-trim);
-            font-family: monospace;
-            cursor: pointer;
+        h2 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-white);
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        select { padding: 8px; font-size: 11px; width: 100%; }
-
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        
-        button { 
-            padding: 12px; font-size: 10px; 
-            box-shadow: 0 3px 0 #000; position: relative; 
-        }
-
-        button:active { top: 2px; box-shadow: 0 1px 0 #000; }
-        
-        #exportBtn { grid-column: span 2; background: #1c2128; color: var(--electric-blue); }
+        h2 span { color: var(--text-grey); font-weight: normal; font-size: 10px; }
 
         .status-light {
-            float: right; width: 10px; height: 10px;
-            background: #112233; border-radius: 50%;
+            width: 10px; height: 10px;
+            background: #111;
+            border: 1px solid #000;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
         }
-        .status-active { background: var(--whiteout); box-shadow: 0 0 10px var(--ice-cyan); }
+        
+        .status-active { 
+            background: var(--text-white); 
+            box-shadow: 0 0 8px var(--text-white), inset 0 0 2px #fff; 
+        }
 
-        .label { font-size: 9px; color: #8b949e; margin-bottom: 5px; display: block; }
+        /* INSET SCREEN / METER */
+        .screen-bezel {
+            background: #08090a;
+            padding: 15px;
+            border: 1px solid #333;
+            border-bottom: 1px solid #111;
+            border-right: 1px solid #111;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,1);
+            margin-bottom: 25px;
+        }
+
+        .screen-header {
+            display: flex; justify-content: space-between;
+            font-size: 10px; color: var(--text-grey);
+            margin-bottom: 10px;
+        }
+
+        #meterCanvas {
+            width: 100%; height: 40px;
+            background: #030303;
+            border: 1px solid #1a1a1a;
+            display: block;
+        }
+
+        /* RUBBER CONTROLS */
+        .label { 
+            font-size: 10px; 
+            color: var(--text-grey); 
+            margin-bottom: 8px; 
+            display: block; 
+            text-transform: uppercase;
+        }
+
+        select, button {
+            background: var(--rubber-pad);
+            color: var(--text-grey);
+            border: 1px solid #000;
+            border-top: 1px solid #2e3238;
+            border-left: 1px solid #2e3238;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            font-family: monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            padding: 14px; 
+            font-size: 11px;
+            width: 100%;
+            border-radius: 0;
+            transition: color 0.1s;
+        }
+
+        select { 
+            appearance: none; 
+            color: var(--text-white);
+            margin-bottom: 20px;
+        }
+
+        .btn-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin-bottom: 15px;
+        }
+
+        button:hover:not([disabled]) {
+            color: var(--text-white);
+        }
+        
+        button:active:not([disabled]) {
+            border: 1px solid #000;
+            border-bottom: 1px solid #2e3238;
+            border-right: 1px solid #2e3238;
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.8);
+            transform: translate(1px, 1px);
+        }
+
+        button[disabled] {
+            opacity: 0.3;
+            cursor: not-allowed;
+            color: #555;
+        }
+
+        /* CUSTOM AUDIO PLAYER SECTION */
+        .player-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+        }
+
+        audio { display: none; }
     </style>
 </head>
 <body>
 
-<div class="chassis">
-    <h2>GK_ULTRA <span style="font-size:10px; opacity:0.5;">LOFI_CORE</span> <div id="recLight" class="status-light"></div></h2>
-    
+<div class="chassis">    
+    <div class="header">
+        <h2>GK_ULTRA <span>// SAMPLER_UNIT</span></h2>
+        <div id="recLight" class="status-light"></div>
+    </div>
+
     <div class="screen-bezel">
-        <div style="font-size: 10px;">SIGNAL_PATH: <span id="gradeDisplay">ACTIVE</span></div>
-        <audio id="preview" controls></audio>
-    </div>
-
-    <div class="control-deck">
-        <span class="label">DESTRUCTION_GRADE</span>
-        <select id="sampleGrade">
-            <option value="hifi" selected>CLEAN (16-BIT / RAW)</option>
-            <option value="lofi1">VINTAGE (12-BIT / 22kHz)</option>
-            <option value="lofi2">CRUSHED (8-BIT / 11kHz)</option>
-            <option value="grit">ULTRA_LOFI (4-BIT / 4kHz)</option>
-        </select>
-
-        <div class="btn-row">
-            <button id="recordBtn">ARM & CAPTURE</button>
-            <button id="stopBtn" disabled>CUT SIGNAL</button>
-            <button id="exportBtn" disabled>SAVE_TO_DISK</button>
+        <div class="screen-header">
+            <span>INPUT_LEVEL // PLAYBACK</span>
+            <span id="gradeDisplay" style="color: var(--text-white);">IDLE</span>
         </div>
+        <canvas id="meterCanvas" width="400" height="40"></canvas>
     </div>
+
+    <span class="label">DESTRUCTION_GRADE</span>
+    <select id="sampleGrade">
+        <option value="hifi" selected>CLEAN (16-BIT / RAW)</option>
+        <option value="lofi1">VINTAGE (12-BIT / 22kHz)</option>
+        <option value="lofi2">CRUSHED (8-BIT / 11kHz)</option>
+        <option value="grit">ULTRA_LOFI (4-BIT / 4kHz)</option>
+    </select>
+
+    <div class="btn-row">
+        <button id="recordBtn">ARM & CAPTURE</button>
+        <button id="stopBtn" disabled>CUT SIGNAL</button>
+    </div>
+
+    <div class="player-row">
+        <button id="playBtn" disabled>PLAY_MEM</button>
+        <button id="exportBtn" disabled>SAVE_TO_DISK</button>
+    </div>
+    
+    <audio id="preview"></audio>
 </div>
 
 <script>
-    let audioCtx, stream, source, processor;
+    let audioCtx, stream, source, processor, analyser;
     let leftChannel = [], rightChannel = [];
     let recording = false;
+    let meterAnim;
 
     const recordBtn = document.getElementById('recordBtn');
     const stopBtn = document.getElementById('stopBtn');
+    const playBtn = document.getElementById('playBtn');
     const exportBtn = document.getElementById('exportBtn');
     const gradeSelector = document.getElementById('sampleGrade');
     const preview = document.getElementById('preview');
     const recLight = document.getElementById('recLight');
+    const gradeDisplay = document.getElementById('gradeDisplay');
+    
+    // Canvas setup
+    const canvas = document.getElementById('meterCanvas');
+    const canvasCtx = canvas.getContext('2d');
+
+    drawIdle();
+
+    function drawIdle() {
+        canvasCtx.fillStyle = '#030303';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+        canvasCtx.fillStyle = '#111';
+        for(let i=0; i<canvas.width; i+=10) {
+            canvasCtx.fillRect(i, 5, 2, canvas.height - 10);
+        }
+    }
 
     recordBtn.onclick = async () => {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         try {
-            // BUG FIX: Disabled all browser audio processing for a true direct stream
             stream = await navigator.mediaDevices.getDisplayMedia({ 
-                video: true, 
-                audio: { 
-                    echoCancellation: false, 
-                    noiseSuppression: false,
-                    autoGainControl: false 
-                } 
-            });
-            
+                 video: true, 
+                 audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
+             });
+                        
             const audioStream = new MediaStream(stream.getAudioTracks());
             source = audioCtx.createMediaStreamSource(audioStream);
             processor = audioCtx.createScriptProcessor(4096, 2, 2);
             
-            source.connect(processor);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            analyser.connect(processor);
             processor.connect(audioCtx.destination); 
 
             leftChannel = []; 
@@ -147,44 +258,139 @@
                 rightChannel.push(new Float32Array(e.inputBuffer.getChannelData(1)));
             };
 
+            renderInputMeter();
+
             recordBtn.innerText = "CAPTURING...";
             recordBtn.disabled = true;
             stopBtn.disabled = false;
+            playBtn.disabled = true;
+            exportBtn.disabled = true;
             recLight.classList.add('status-active');
+            gradeDisplay.innerText = "SAMPLING";
+            gradeDisplay.style.color = "#ff3333";
+            
         } catch (err) { alert("Enable audio sharing in the popup."); }
     };
 
+    function renderInputMeter() {
+        if (!recording) return;
+        meterAnim = requestAnimationFrame(renderInputMeter);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for(let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        let average = sum / dataArray.length;
+        
+        let meterLevel = (average / 128) * canvas.width; 
+
+        canvasCtx.fillStyle = '#030303';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const segmentWidth = 8;
+        const gap = 2;
+        
+        for (let x = 0; x < canvas.width; x += (segmentWidth + gap)) {
+            if (x < meterLevel) {
+                // Classic Audio VU Meter RGB Mapping
+                let ratio = x / canvas.width;
+                if (ratio > 0.85) {
+                    canvasCtx.fillStyle = '#ff3333'; // Peak: Red
+                } else if (ratio > 0.6) {
+                    canvasCtx.fillStyle = '#ffcc00'; // Hot: Yellow
+                } else {
+                    canvasCtx.fillStyle = '#33cc33'; // Safe: Green
+                }
+            } else {
+                canvasCtx.fillStyle = '#111'; // Off state
+            }
+            canvasCtx.fillRect(x, 4, segmentWidth, canvas.height - 8);
+        }
+    }
+
     stopBtn.onclick = () => {
         recording = false;
+        cancelAnimationFrame(meterAnim);
+        
         if(stream) stream.getTracks().forEach(t => t.stop());
         if(processor) processor.disconnect();
         if(source) source.disconnect();
-        
+                
         const rawL = flattenArray(leftChannel);
         const rawR = flattenArray(rightChannel);
-        
-        // Process the audio
         const processed = applyGrade(rawL, rawR, gradeSelector.value);
 
-        // Create the playable buffer
         const buffer = audioCtx.createBuffer(2, processed.l.length, processed.rate);
         buffer.copyToChannel(processed.l, 0);
         buffer.copyToChannel(processed.r, 1);
-        
+                
         preview.src = URL.createObjectURL(audioBufferToWav(buffer));
-        window.lastRecordedBuffer = buffer;
+        
+        drawIdle(); 
 
         recordBtn.innerText = "ARM & CAPTURE";
         recordBtn.disabled = false;
         stopBtn.disabled = true;
+        playBtn.disabled = false;
         exportBtn.disabled = false;
         recLight.classList.remove('status-active');
+        gradeDisplay.innerText = "BUFFER_READY";
+        gradeDisplay.style.color = "var(--text-grey)";
     };
 
+    playBtn.onclick = () => {
+        if (preview.paused) {
+            preview.play();
+            playBtn.innerText = "STOP_MEM";
+            gradeDisplay.innerText = "PLAYING";
+            gradeDisplay.style.color = "var(--text-white)";
+            renderPlaybackMeter();
+        } else {
+            preview.pause();
+            preview.currentTime = 0;
+            playBtn.innerText = "PLAY_MEM";
+            gradeDisplay.innerText = "BUFFER_READY";
+            gradeDisplay.style.color = "var(--text-grey)";
+            cancelAnimationFrame(meterAnim);
+            drawIdle();
+        }
+    };
+
+    preview.onended = () => {
+        playBtn.innerText = "PLAY_MEM";
+        gradeDisplay.innerText = "BUFFER_READY";
+        gradeDisplay.style.color = "var(--text-grey)";
+        cancelAnimationFrame(meterAnim);
+        drawIdle();
+    };
+
+    function renderPlaybackMeter() {
+        if (preview.paused) return;
+        meterAnim = requestAnimationFrame(renderPlaybackMeter);
+        
+        const progress = preview.currentTime / preview.duration;
+        const playHead = progress * canvas.width;
+
+        canvasCtx.fillStyle = '#030303';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const segmentWidth = 8;
+        const gap = 2;
+        
+        for (let x = 0; x < canvas.width; x += (segmentWidth + gap)) {
+            if (x < playHead) {
+                canvasCtx.fillStyle = '#ffffff'; // White Progress Bar
+            } else {
+                canvasCtx.fillStyle = '#111';
+            }
+            // Centered thinner bar for playback progress
+            canvasCtx.fillRect(x, 15, segmentWidth, 10);
+        }
+    }
+
     function applyGrade(l, r, grade) {
-        let step = 1;
-        let bitDepth = 16;
-        let rate = audioCtx.sampleRate;
+        let step = 1; let bitDepth = 16; let rate = audioCtx.sampleRate;
 
         if (grade === 'lofi1') { step = 2; bitDepth = 12; }
         else if (grade === 'lofi2') { step = 4; bitDepth = 8; }
@@ -194,17 +400,15 @@
         const outR = new Float32Array(r.length);
         const levels = Math.pow(2, bitDepth);
 
-        // Sample and Hold + Bitcrushing logic
         for (let i = 0; i < l.length; i += step) {
             let valL = Math.round(l[i] * levels) / levels;
             let valR = Math.round(r[i] * levels) / levels;
-            
+                        
             for (let j = 0; j < step && (i + j) < l.length; j++) {
                 outL[i + j] = valL;
                 outR[i + j] = valR;
             }
         }
-
         return { l: outL, r: outR, rate: rate };
     }
 
