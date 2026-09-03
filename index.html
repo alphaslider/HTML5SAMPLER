@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,7 @@
             --bg-obsidian: #050505;
             --text-grey: #8b949e; 
             --text-white: #c9d1d9;
+            --scale-factor: 1.6; /* Tweak this number to make the machine larger or smaller */
         }
         
         body { 
@@ -30,6 +32,10 @@
             position: relative; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             transition: background-image 0.2s ease-in-out; /* Smooth fade between skins */
+            
+            /* Scales the entire machine up without breaking inner coordinates */
+            transform: scale(var(--scale-factor));
+            transform-origin: center center;
         }
 
         /* STATUS LIGHT */
@@ -123,7 +129,7 @@
             background: rgba(255, 255, 255, 0.1);
         }
         button[disabled] { cursor: not-allowed; }
-        audio { display: none; }    
+        audio { display: none; }  
     </style>
 </head>
 <body>
@@ -133,7 +139,7 @@
 
     <div class="screen-bezel">        
         <div class="screen-header">            
-            <span id="gradeDisplay" style="color: var(--text-white);">IDLE</span>        
+            <span id="gradeDisplay" style="color: var(--text-white);">READY</span>        
         </div>        
         <canvas id="meterCanvas" width="456" height="40"></canvas>    
     </div>
@@ -189,6 +195,8 @@
     gradeSelector.addEventListener('change', (e) => {
         if (e.target.value === 'hifi') {
             chassis.style.backgroundImage = "url('skin.jpg')";
+        } else if (e.target.value === 'grit') {
+            chassis.style.backgroundImage = "url('crushed.jpg')";
         } else {
             chassis.style.backgroundImage = "url('swampops.jpg')";
         }
@@ -197,15 +205,15 @@
     // Master switch for canvas animation states
     function switchCanvasMode(mode) {
         if (meterAnim) cancelAnimationFrame(meterAnim);
-        if (mode === 'idle') renderIdleGlitch();
+        if (mode === 'idle') renderIdleScreen();
         else if (mode === 'sampling') renderInputMeter();
         else if (mode === 'playing') renderPlaybackMeter();
     }
 
     switchCanvasMode('idle');
 
-    function renderIdleGlitch() {
-        meterAnim = requestAnimationFrame(renderIdleGlitch);
+    function renderIdleScreen() {
+        meterAnim = requestAnimationFrame(renderIdleScreen);
         
         // Base dark background
         canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
@@ -218,19 +226,6 @@
         for(let i=0; i<displayWidth; i+= (segW + gap)) {
             canvasCtx.fillRect(i, 4, segW, displayHeight - 8);
         }
-
-        // Periodic matrix glitch effect
-        if (Math.random() > 0.93) { // 7% chance per frame to glitch
-            canvasCtx.fillStyle = Math.random() > 0.5 ? 'rgba(51, 204, 51, 0.7)' : 'rgba(255, 255, 255, 0.5)';
-            let numGlitches = Math.floor(Math.random() * 6);
-            for(let k=0; k<numGlitches; k++) {
-                // Snap to segment grid
-                let rx = Math.floor(Math.random() * (displayWidth / (segW+gap))) * (segW+gap);
-                let ry = 4 + Math.random() * (displayHeight - 12);
-                let rh = Math.random() * (displayHeight - ry);
-                canvasCtx.fillRect(rx, ry, segW, rh);
-            }
-        }
     }
 
     recordBtn.onclick = async () => {
@@ -241,7 +236,7 @@
                  video: true, 
                  audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
              });
-                                    
+                                            
             const audioStream = new MediaStream(stream.getAudioTracks());
             source = audioCtx.createMediaStreamSource(audioStream);
             processor = audioCtx.createScriptProcessor(4096, 2, 2);
